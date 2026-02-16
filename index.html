@@ -165,25 +165,36 @@
     </header>
 
     <main>
-        <div class="video-container">
-            <div class="iframe-wrapper">
-                <iframe 
-                    src="https://streamcrichd.com/update/skys2.php?playsinline=1" 
-                    width="100%" 
-                    height="500px"
-                    marginheight="0" 
-                    marginwidth="0" 
-                    scrolling="no" 
-                    frameborder="0" 
-                    allowfullscreen="true"
-                    webkitallowfullscreen="true" 
-                    playsinline="true" 
-                    allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-                    referrerpolicy="no-referrer"
-                    sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox allow-top-navigation">
-                </iframe>
-            </div>
+        <div class="video-container" style="position: relative;">
+    <div id="video-overlay" onclick="startStream()" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 12px;">
+        <div style="background: #e50914; color: white; padding: 15px 25px; border-radius: 50px; font-weight: bold; font-size: 1.2rem;">
+            Watch Live Now ▶
         </div>
+    </div>
+
+    <div class="iframe-wrapper">
+        <iframe 
+            id="live-stream"
+            src="" 
+            allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+            frameborder="0" 
+            scrolling="no" 
+            allowfullscreen 
+            webkitallowfullscreen 
+            playsinline
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+        </iframe>
+    </div>
+</div>
+
+        <script>
+        function startStream() {
+            // බටන් එක අයින් කරනවා
+            document.getElementById('video-overlay').style.display = 'none';
+            // iframe එකට source එක දානවා
+            document.getElementById('live-stream').src = "https://streamcrichd.com/update/skys2.php?playsinline=1";
+        }
+        </script>
 
         <div class="stream-info">
             <h1 class="stream-title">Live Broadcast</h1>
