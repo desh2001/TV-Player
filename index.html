@@ -4,36 +4,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live TV Stream</title>
+    <title>Desh StreamHub</title>
     <style>
         :root {
-            --primary-color: #e50914;
-            /* Netflix-like red */
+            --primary-color: #2d55ff;
+            /* Blue from reference */
+            --accent-color: #e50914;
+            /* Red for badges */
             --background-color: #0f0f0f;
-            --surface-color: #1a1a1a;
             --text-color: #ffffff;
             --text-secondary: #b3b3b3;
+            --gradient-overlay: linear-gradient(to right, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0.1) 100%);
+            --gradient-bottom: linear-gradient(to top, #0f0f0f 10%, rgba(15, 15, 15, 0.8) 50%, transparent 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--background-color);
             color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            /* Allow scrolling */
         }
 
-        header {
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
-            position: sticky;
+        /* Video Background Layer */
+        .hero-background {
+            position: absolute;
             top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid #333;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .hero-background img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Static image */
+        }
+
+        /* Overlays */
+        .overlay-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--gradient-overlay);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .overlay-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40vh;
+            background: var(--gradient-bottom);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Main Content Container */
+        .hero-container {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 3rem 4rem;
+        }
+
+        /* Header */
+        header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -42,169 +95,447 @@
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
-            color: var(--primary-color);
+            color: white;
             text-transform: uppercase;
             letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
 
         .logo span {
-            color: var(--text-color);
+            color: var(--primary-color);
         }
 
-        main {
-            flex: 1;
+        .user-profile {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #333;
+            border: 2px solid white;
+        }
+
+        /* Hero Content */
+        .hero-content {
+            max-width: 600px;
+            margin-top: auto;
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .meta-info {
             display: flex;
-            justify-content: center;
+            gap: 1.5rem;
             align-items: center;
-            padding: 2rem;
-            flex-direction: column;
+            margin-bottom: 1.5rem;
+            color: #ccc;
+            font-size: 1rem;
         }
 
-        .video-container {
-            width: 100%;
-            max-width: 1000px;
-            background-color: #000;
-            border-radius: 12px;
+        .match-score {
+            color: #4caf50;
+            /* Green for score/live */
+            font-weight: bold;
+        }
+
+        .genre {
+            color: var(--text-secondary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .btn {
+            padding: 12px 32px;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1a3ecc;
+        }
+
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Channel Strip */
+        .channel-strip {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            /* Increase padding to prevent scale clipping on top/bottom/sides */
+            padding: 1rem;
+            scrollbar-width: none;
+            z-index: 20;
+            /* Ensure clickable */
+        }
+
+        .channel-strip::-webkit-scrollbar {
+            display: none;
+        }
+
+        .channel-card {
+            min-width: 160px;
+            height: 100px;
+            /* Landscape aspect */
+            background-color: #333;
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            position: relative;
-            /* Maintain 16:9 aspect ratio helper if needed, but here we use fixed height as requested or responsive */
+            transition: transform 0.3s, border 0.3s;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
-        /* Responsive wrapper for iframe */
-        .iframe-wrapper {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%;
-            /* 16:9 Aspect Ratio */
-            height: 0;
-        }
-
-        .iframe-wrapper iframe {
+        .channel-card-bg {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            background: linear-gradient(45deg, #222, #444);
+            z-index: 1;
+        }
+
+        .channel-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 8px;
+            z-index: 2;
+            text-align: center;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+        }
+
+        .channel-name {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        .channel-card:hover {
+            transform: scale(1.05);
+            border-color: white;
+            z-index: 5;
+        }
+
+        .channel-card.active {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        /* Player Section */
+        #player-section {
+            width: 100%;
+            min-height: 100vh;
+            background-color: #000;
+            background-image: url('src/bg3.png');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .player-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+
+        .player-container iframe {
+            width: 100%;
+            height: 100%;
             border: none;
         }
 
-        .stream-info {
-            max-width: 1000px;
-            width: 100%;
-            margin-top: 1.5rem;
-            padding: 1rem;
-            background-color: var(--surface-color);
-            border-radius: 8px;
-        }
-
-        .stream-title {
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .stream-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            color: #4caf50;
-        }
-
-        .live-indicator {
-            width: 8px;
-            height: 8px;
-            background-color: #4caf50;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                opacity: 1;
-                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
-            }
-
-            70% {
-                opacity: 1;
-                box-shadow: 0 0 0 6px rgba(76, 175, 80, 0);
-            }
-
-            100% {
-                opacity: 0;
-            }
-        }
-
-        footer {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            border-top: 1px solid #333;
-        }
-
         @media (max-width: 768px) {
-            main {
-                padding: 1rem;
+            .hero-title {
+                font-size: 2.5rem;
             }
 
-            header {
-                padding: 1rem;
+            .hero-container {
+                padding: 1.5rem;
             }
+
+            .channel-strip {
+                padding-bottom: 2rem;
+            }
+        }
+
+        /* Footer */
+        footer {
+            background-color: #050505;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+            text-align: center;
+            border-top: 1px solid #222;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 1px;
+        }
+
+        .footer-logo span {
+            color: var(--primary-color);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .copyright {
+            font-size: 0.85rem;
+            opacity: 0.6;
         }
     </style>
 </head>
 
 <body>
 
-    <header>
-        <div class="logo">DESH Stream<span>Hub</span></div>
-    </header>
+    <!-- Static Background Image -->
+    <div class="hero-background">
+        <img src="src/bg2.png" alt="Stadium Background">
+    </div>
 
-    <main>
-        <div class="video-container" style="position: relative;">
-            <div id="video-overlay" onclick="startStream()"
-                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 12px;">
-                <div
-                    style="background: #e50914; color: white; padding: 15px 25px; border-radius: 50px; font-weight: bold; font-size: 1.2rem;">
-                    Watch Live Now ▶
-                </div>
+    <!-- Gradients -->
+    <div class="overlay-gradient"></div>
+    <div class="overlay-bottom"></div>
+
+    <!-- Hero Section -->
+    <div class="hero-container">
+        <header>
+            <div class="logo"><span>DESH</span> StreamHub</div>
+
+        </header>
+
+        <div class="hero-content">
+            <span class="badge">Live Premium</span>
+            <h1 class="hero-title" id="hero-title">Select Channel</h1>
+
+            <div class="meta-info">
+                <span class="match-score" id="hero-status">OFFLINE</span>
+                <span>•</span>
+                <span class="genre" id="hero-genre">Live Sports</span>
+                <span>•</span>
+                <span>HD Stream</span>
             </div>
 
-            <div class="iframe-wrapper">
-                <iframe id="live-stream" src="" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-                    frameborder="0" scrolling="no"
-                    sandbox="allow-forms allow-scripts allow-same-origin allow-presentation" allowfullscreen
-                    webkitallowfullscreen playsinline
-                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-                </iframe>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="startStream()">
+                    <span>▶</span> Watch Now
+                </button>
+                <button class="btn btn-secondary">
+                    <span>+</span> Add to List
+                </button>
             </div>
+
         </div>
 
-        <script>
-            function startStream() {
-                // බටන් එක අයින් කරනවා
-                document.getElementById('video-overlay').style.display = 'none';
-                // iframe එකට source එක දානවා
-                document.getElementById('live-stream').src = "https://streamcrichd.com/update/willowcricket.php?playsinline=1";
-            }
-        </script>
-
-        <div class="stream-info">
-            <h1 class="stream-title">Live Broadcast</h1>
-            <div class="stream-status">
-                <span class="live-indicator"></span>
-                LIVE NOW
-            </div>
+        <!-- Channel Strip -->
+        <div class="channel-strip" id="channel-strip">
+            <!-- Channels rendered via JS -->
         </div>
-    </main>
+    </div>
 
+    <!-- Player Section (Below Fold) -->
+    <div id="player-section">
+        <div class="player-container">
+            <iframe id="live-stream" src="" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                sandbox="allow-forms allow-scripts allow-same-origin allow-presentation" allowfullscreen
+                referrerpolicy="no-referrer" webkitallowfullscreen playsinline>
+            </iframe>
+        </div>
+    </div>
+
+    <!-- Footer -->
     <footer>
-        <p>&copy; 2026 Desh StreamHub. All rights reserved.</p>
+        <div class="footer-content">
+            <div class="footer-logo"><span>DESH</span> StreamHub</div>
+
+            <div class="copyright">
+                &copy; 2026 Desh StreamHub. All rights reserved. <br>
+                This site does not host any content. All content is provided by non-affiliated third parties.
+            </div>
+        </div>
     </footer>
+
+    <script>
+        // Channel Data
+        const channels = [
+            {
+                name: "Willow Cricket",
+                url: "https://streamcrichd.com/update/willowcricket.php?playsinline=1",
+                genre: "Cricket League",
+                image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=500&q=80"
+            },
+            {
+                name: "Sky Sports Cricket HD",
+                url: "https://streamcrichd.com/update/skys2.php?playsinline=1",
+                genre: "UK Cricket",
+                image: "https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?w=500&q=80"
+            },
+            {
+                name: "Star Sports HD",
+                url: "https://streamcrichd.com/update/star.php?playsinline=1",
+                genre: "India Cricket",
+                image: "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=500&q=80"
+            },
+            {
+                name: "PTV Sports",
+                url: "https://streamcrichd.com/update/ptv.php?playsinline=1",
+                genre: "Pakistan Cricket",
+                image: "https://images.unsplash.com/photo-1512719994953-eabf50895df7?w=500&q=80"
+            },
+            {
+                name: "Star Sports 1",
+                url: "https://streamcrichd.com/update/star1.php?playsinline=1",
+                genre: "Live Sports",
+                image: "https://images.unsplash.com/photo-1606925797300-0b35e9d17d27?w=500&q=80"
+            },
+            {
+                name: "Willow Cricket Extra",
+                url: "https://streamcrichd.com/update/willowextra.php?playsinline=1",
+                genre: "Extra Coverage",
+                image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=500&q=80"
+            },
+            {
+                name: "SuperSports Cricket",
+                url: "https://streamcrichd.com/update/sscricket.php?playsinline=1",
+                genre: "South Africa",
+                image: "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=500&q=80"
+            }
+        ];
+
+        let currentIndex = 0;
+
+        function init() {
+            const strip = document.getElementById('channel-strip');
+
+            channels.forEach((channel, index) => {
+                const card = document.createElement('div');
+                card.className = 'channel-card';
+                card.onclick = () => selectChannel(index);
+
+                card.innerHTML = `
+                    <img src="${channel.image}" alt="${channel.name}" style="position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; opacity: 0.6; transition: opacity 0.3s;">
+                    <div class="channel-card-bg" style="background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); z-index: 1;"></div>
+                    <div class="channel-info" style="z-index: 2;">
+                        <div class="channel-name">${channel.name}</div>
+                    </div>
+                `;
+
+                strip.appendChild(card);
+            });
+
+            // Init first channel info
+            selectChannel(0);
+        }
+
+        function selectChannel(index) {
+            currentIndex = index;
+            const channel = channels[index];
+
+            // Update Hero Info
+            document.getElementById('hero-title').textContent = channel.name;
+            document.getElementById('hero-status').textContent = "LIVE NOW";
+            document.getElementById('hero-genre').textContent = channel.genre;
+
+            // Update Active Card
+            const cards = document.querySelectorAll('.channel-card');
+            cards.forEach((c, i) => {
+                if (i === index) c.classList.add('active');
+                else c.classList.remove('active');
+            });
+
+            // Do NOT update iframe src here to prevent background audio playback
+        }
+
+        function startStream() {
+            const channel = channels[currentIndex];
+            // Update Video Source immediately before scrolling
+            document.getElementById('live-stream').src = channel.url;
+
+            // Scroll to player
+            const playerSection = document.getElementById('player-section');
+            playerSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
 
 </body>
 
