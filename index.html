@@ -436,10 +436,16 @@
     </div>
 
     <!-- Player Section (Below Fold) -->
-    <div id="player-section">
-        <div class="player-container">
-            <iframe id="live-stream" src="" allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-                sandbox="allow-forms allow-scripts allow-same-origin allow-presentation" allowfullscreen
+   <div id="player-section">
+        <div class="player-container" style="position: relative;">
+            
+            <div id="ad-block-overlay" onclick="removeOverlay()" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: pointer; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;">
+                 <h3 style="color: white; text-shadow: 1px 1px 3px black;">Click here to Play</h3>
+            </div>
+
+            <iframe id="live-stream" src="" 
+                allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                allowfullscreen
                 referrerpolicy="no-referrer" webkitallowfullscreen playsinline>
             </iframe>
         </div>
@@ -528,6 +534,9 @@
             // Init first channel info
             selectChannel(0);
         }
+        function startStream() {
+            document.getElementById('live-stream').src = channel.url;
+        }
 
         function selectChannel(index) {
             currentIndex = index;
@@ -547,6 +556,17 @@
 
             // Do NOT update iframe src here to prevent background audio playback
         }
+
+        // Overlay එක මකා දැමීමේ Function එක
+        function removeOverlay() {
+            let overlay = document.getElementById('ad-block-overlay');
+            overlay.style.display = 'none'; // පළමු Click එකෙන් පසුව මෙය මැකී යයි
+            
+            // දැන් ප්ලේයර් එක නිරාවරණය වී ඇත. ඊළඟ Click එකෙන් Video එක Play වේ.
+        }
+
+        // චැනල් එක මාරු කරද්දී ආයේ Overlay එක ගේන්න ඕනේ නම් 'startStream()' එක ඇතුලට මේ පේළිය දාන්න:
+        // document.getElementById('ad-block-overlay').style.display = 'flex';
 
         function startStream() {
             const channel = channels[currentIndex];
