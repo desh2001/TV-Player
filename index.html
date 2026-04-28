@@ -332,25 +332,30 @@
 
         /* Footer */
         footer {
-            background-color: #050505;
-            padding: 4rem 2rem;
+            position: relative;
+            background: rgba(255, 255, 255, 0.03); /* Very transparent white */
+            backdrop-filter: blur(15px); /* Strong glass blur */
+            -webkit-backdrop-filter: blur(15px);
+            padding: 1.5rem 2rem; /* Reduced padding for a smaller look */
             color: var(--text-secondary);
             text-align: center;
-            border-top: 1px solid #222;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 0;
         }
 
         .footer-content {
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between; /* Horizontal layout */
             align-items: center;
-            gap: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .footer-logo {
-            font-size: 1.5rem;
-            font-weight: bold;
+            font-size: 1.1rem; /* Smaller logo in footer */
+            font-weight: 800;
             color: white;
             letter-spacing: 1px;
         }
@@ -359,29 +364,21 @@
             color: var(--primary-color);
         }
 
-        .footer-links {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 0.5rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .footer-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.95rem;
-            transition: color 0.2s;
-        }
-
-        .footer-links a:hover {
-            color: var(--primary-color);
-        }
-
         .copyright {
-            font-size: 0.85rem;
-            opacity: 0.6;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            text-align: right;
         }
+
+    @media (max-width: 768px) {
+        .footer-content {
+            flex-direction: column;
+            text-align: center;
+        }
+        .copyright {
+            text-align: center;
+        }
+}
     </style>
 </head>
 
@@ -422,9 +419,7 @@
                 <button class="btn btn-primary" onclick="startStream()">
                     <span>▶</span> Watch Now
                 </button>
-                <button class="btn btn-secondary">
-                    <span>+</span> Add to List
-                </button>
+                
             </div>
 
         </div>
@@ -453,14 +448,14 @@
 
     <!-- Footer -->
     <footer>
-        <div class="footer-content">
-            <div class="footer-logo"><span>DESH</span> StreamHub</div>
+    <div class="footer-content">
+        <div class="footer-logo"><span>DESH</span> StreamHub</div>
 
-            <div class="copyright">
-                &copy; 2026 Desh StreamHub. All rights reserved. <br>
-                This site does not host any content. All content is provided by non-affiliated third parties.
-            </div>
+        <div class="copyright">
+            &copy; 2026 Desh StreamHub. All rights reserved. <br>
+            Content provided by non-affiliated third parties.
         </div>
+    </div>
     </footer>
 
     <script>
